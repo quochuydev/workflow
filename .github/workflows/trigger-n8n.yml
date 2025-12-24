@@ -1,0 +1,110 @@
+# ============================================================
+# OPTIONAL: n8n Integration for QC Test Automation
+# ============================================================
+# This workflow is OPTIONAL. Delete this file if your team
+# does not use n8n for test automation.
+#
+# To enable:
+# 1. Set up n8n instance (see docs/n8n-setup.md)
+# 2. Add N8N_WEBHOOK_URL secret to GitHub repository
+#
+# If N8N_WEBHOOK_URL is not set, this workflow does nothing.
+# ============================================================
+
+name: Trigger n8n Tests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  trigger-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed features
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            BASE_SHA=${{ github.event.before }}
+            HEAD_SHA=${{ github.sha }}
+          fi
+
+          # Get all changed files
+          CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "No changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+
+          # Try to map changed files to features
+          # Look for feature references in docs or src folders
+          FEATURES=""
+
+          # Check for doc changes
+          DOC_FEATURES=$(echo "$CHANGED" | grep '^docs/' | sed 's|docs/||' | cut -d'/' -f1 | sort -u | grep -v '\.md$' | grep -v 'plans' || true)
+
+          # Check for src changes that might map to features
+          # This is project-specific - adjust pattern as needed
+          SRC_FEATURES=$(echo "$CHANGED" | grep '^src/' | sed 's|src/||' | cut -d'/' -f1 | sort -u || true)
+
+          # Combine and dedupe
+          ALL_FEATURES=$(echo -e "$DOC_FEATURES\n$SRC_FEATURES" | sort -u | grep -v '^$' || true)
+
+          echo "Affected features: $ALL_FEATURES"
+
+          # Convert to JSON array
+          FEATURES_JSON=$(echo "$ALL_FEATURES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "features=$FEATURES_JSON" >> $GITHUB_OUTPUT
+
+          # Get list of changed files
+          FILES_JSON=$(echo "$CHANGED" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "files=$FILES_JSON" >> $GITHUB_OUTPUT
+
+      - name: Trigger n8n webhook
+        if: steps.detect.outputs.has_changes == 'true'
+        env:
+          N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
+        run: |
+          if [ -z "$N8N_WEBHOOK_URL" ]; then
+            echo "N8N_WEBHOOK_URL not set, skipping n8n trigger"
+            exit 0
+          fi
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "event": "${{ github.event_name }}",
+            "repository": "${{ github.repository }}",
+            "ref": "${{ github.ref }}",
+            "sha": "${{ github.sha }}",
+            "actor": "${{ github.actor }}",
+            "features": ${{ steps.detect.outputs.features }},
+            "changed_files": ${{ steps.detect.outputs.files }},
+            "pr_number": "${{ github.event.pull_request.number || '' }}",
+            "pr_title": "${{ github.event.pull_request.title || '' }}"
+          }
+          EOF
+          )
+
+          echo "Sending payload to n8n..."
+          echo "$PAYLOAD" | jq .
+
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$N8N_WEBHOOK_URL"
