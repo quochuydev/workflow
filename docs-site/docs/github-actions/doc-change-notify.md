@@ -1,0 +1,139 @@
+---
+sidebar_position: 2
+title: "Doc Change Notification"
+description: "GitHub Action: Doc Change Notification"
+---
+
+# Doc Change Notification
+
+## Triggers
+
+- **push**: watches `docs/**`
+- **pull_request**: watches `docs/**`
+
+## Jobs
+
+- `notify`
+
+## Full Workflow
+
+```yaml
+name: Doc Change Notification
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+    branches:
+      - main
+      - master
+  pull_request:
+    paths:
+      - 'docs/**'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            BASE_SHA=${{ github.event.before }}
+            HEAD_SHA=${{ github.sha }}
+          fi
+
+          # Get changed files in docs/
+          CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA -- docs/ | grep -v '^docs/plans/' || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "No doc changes (excluding plans/)"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+
+          # Extract unique feature folders
+          FEATURES=$(echo "$CHANGED" | sed 's|docs/||' | cut -d'/' -f1 | sort -u | grep -v '\.md$' || true)
+
+          # Build summary
+          echo "## Documentation Changes" > summary.md
+          echo "" >> summary.md
+
+          if [ -n "$FEATURES" ]; then
+            echo "### Features Updated:" >> summary.md
+            for feature in $FEATURES; do
+              echo "- **$feature**" >> summary.md
+              # List changed files for this feature
+              echo "$CHANGED" | grep "docs/$feature/" | while read file; do
+                echo "  - \`$(basename $file)\`" >> summary.md
+              done
+            done
+          fi
+
+          # List any root-level doc changes
+          ROOT_DOCS=$(echo "$CHANGED" | grep -E '^docs/[^/]+\.md$' || true)
+          if [ -n "$ROOT_DOCS" ]; then
+            echo "" >> summary.md
+            echo "### Other Docs:" >> summary.md
+            echo "$ROOT_DOCS" | while read file; do
+              echo "- \`$(basename $file)\`" >> summary.md
+            done
+          fi
+
+          echo "" >> summary.md
+          echo "---" >> summary.md
+          echo "*Developers: Run \`/develop-feature <feature-name>\` to get full context.*" >> summary.md
+
+          cat summary.md
+
+          # Save for later steps
+          {
+            echo 'summary<<EOF'
+            cat summary.md
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && steps.changed-files.outputs.has_changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${{ steps.changed-files.outputs.summary }}`
+            })
+
+      - name: Send Slack notification
+        if: github.event_name == 'push' && steps.changed-files.outputs.has_changes == 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_URL not set, skipping Slack notification"
+            exit 0
+          fi
+
+          # Convert markdown to Slack-friendly format
+          SUMMARY=$(cat summary.md | sed 's/##/#/g' | sed 's/\*\*//g' | sed 's/`//g')
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\": \"$SUMMARY\n\nCommit: ${{ github.sha }}\nBy: ${{ github.actor }}\"}" \
+            $SLACK_WEBHOOK_URL
+
+```
+
+---
+
+*Auto-generated from [`.github/workflows/doc-change-notify.yml`](https://github.com/quochuydev/workflow/blob/main/.github/workflows/doc-change-notify.yml)*
