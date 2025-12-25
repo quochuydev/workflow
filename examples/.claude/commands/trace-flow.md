@@ -46,14 +46,14 @@ CALL CHAIN:
 
 Search `./docs/` for features related to this flow:
 1. Match function/endpoint names to feature folders
-2. Search for keywords in spec.md and rules.md files
+2. Search for keywords in spec.md files
 
-For each related feature, extract relevant rules.
+For each related feature, extract relevant business rules from spec.md.
 
 Report:
 ```
 RELATED BUSINESS RULES:
-From ./docs/[feature]/rules.md:
+From ./docs/[feature]/spec.md:
 - [Rule 1]
 - [Rule 2]
 - [Rule 3]

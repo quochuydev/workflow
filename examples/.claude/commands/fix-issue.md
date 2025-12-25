@@ -23,12 +23,10 @@ Issue: `$ARGUMENTS.issue`
 
 Search `./docs/` for related features:
 1. Search for keywords from issue in all spec.md files
-2. Search for keywords in all rules.md files
-3. List all potentially related features
+2. List all potentially related features
 
 For each related feature found, read:
 - `./docs/<feature>/spec.md`
-- `./docs/<feature>/rules.md`
 
 ## Step 3: Find Related Code
 
