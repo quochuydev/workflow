@@ -7,12 +7,9 @@ title: "Commands Overview"
 
 These commands are available in Claude Code for this project.
 
-| Command | For | Description |
-|---------|-----|-------------|
-| [`/write-spec`](./write-spec) | PM/BA | Create feature specification through conversation |
-| [`/develop-feature`](./develop-feature) | Dev | Build a feature using docs as source of truth |
-| [`/fix-issue`](./fix-issue) | Dev | Fix a bug with context from docs and code |
-| [`/trace-flow`](./trace-flow) | Dev | Trace code flow with business context from docs |
+| Command | Description |
+|---------|-------------|
+
 
 ## How to Use
 
