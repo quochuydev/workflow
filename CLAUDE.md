@@ -73,6 +73,11 @@ workflow/
 └── CLAUDE.md                  # Rules for Claude (this file)
 ```
 
+### Git Commits
+
+- Do NOT include `Co-Authored-By` or `🤖 Generated with Claude Code` in commit messages
+- Keep commits attributed to the user only
+
 ### Checklist Before Commit
 
 - [ ] All templates synced to examples/
