@@ -12,30 +12,31 @@ This page visualizes the complete team workflow from documentation to deployment
 ```mermaid
 flowchart TB
     subgraph PM/BA
-        A[Write spec.md] --> B[Push to GitHub]
+        A[Run /write-spec] --> B[Claude generates spec.md]
+        B --> C[Push to GitHub]
     end
 
     subgraph GitHub
-        B --> C{GitHub Action}
-        C -->|doc change| D[Notify Developers]
-        C -->|any push| E[Trigger n8n]
+        C --> D{GitHub Action}
+        D -->|doc change| E[Notify Developers]
+        D -->|any push| F[Trigger n8n]
     end
 
     subgraph Developer
-        D --> F[Receive notification]
-        F --> G[Run /develop-feature]
-        G --> H[Claude reads docs]
-        H --> I[Implement feature]
-        I --> J[Push code]
+        E --> G[Receive notification]
+        G --> H[Run /develop-feature]
+        H --> I[Claude reads spec.md]
+        I --> J[Implement feature]
+        J --> K[Push code]
     end
 
     subgraph QC
-        E --> K[n8n receives webhook]
-        K --> L[Run automated tests]
-        L --> M[Report results]
+        F --> L[n8n receives webhook]
+        L --> M[Run automated tests]
+        M --> N[Report results]
     end
 
-    J --> C
+    K --> D
 ```
 
 ## Documentation Structure
@@ -44,11 +45,8 @@ flowchart TB
 flowchart LR
     subgraph docs/
         direction TB
-        README[README.md]
-
         subgraph feature/
             SPEC[spec.md]
-            RULES[rules.md]
             subgraph examples/
                 EX1[valid.json]
                 EX2[invalid.json]
@@ -57,12 +55,31 @@ flowchart LR
     end
 
     SPEC -->|required| Claude[Claude Code]
-    RULES -->|optional| Claude
     EX1 -->|optional| Claude
     EX2 -->|optional| Claude
 ```
 
-## Command Flow: /develop-feature
+## Command Flow: /write-spec (PM/BA)
+
+```mermaid
+sequenceDiagram
+    participant PM as PM/BA
+    participant Claude as Claude Code
+    participant Docs as docs/feature/
+
+    PM->>Claude: /write-spec user-export
+    Claude->>PM: What problem does this solve?
+    PM->>Claude: Users need to export data
+    Claude->>PM: What data fields?
+    PM->>Claude: id, name, email, createdAt
+    Claude->>PM: Any error cases?
+    PM->>Claude: Invalid format, too large
+    Claude->>Claude: Generate spec
+    Claude->>Docs: Write spec.md
+    Claude->>PM: Spec saved! Dev can run /develop-feature
+```
+
+## Command Flow: /develop-feature (Developer)
 
 ```mermaid
 sequenceDiagram
@@ -71,11 +88,9 @@ sequenceDiagram
     participant Docs as docs/feature/
     participant Code as Codebase
 
-    Dev->>Claude: /develop-feature user-auth
+    Dev->>Claude: /develop-feature user-export
     Claude->>Docs: Read spec.md
-    Docs-->>Claude: Feature requirements
-    Claude->>Docs: Read rules.md (if exists)
-    Docs-->>Claude: Business rules
+    Docs-->>Claude: Requirements, API, errors
     Claude->>Docs: Read examples/ (if exists)
     Docs-->>Claude: Sample data
     Claude->>Claude: Analyze and plan
@@ -83,7 +98,7 @@ sequenceDiagram
     Claude->>Dev: Report completion
 ```
 
-## Command Flow: /fix-issue
+## Command Flow: /fix-issue (Developer)
 
 ```mermaid
 sequenceDiagram
@@ -157,7 +172,7 @@ flowchart LR
 
 | File | Owner | Purpose |
 |------|-------|---------|
-| `docs/<feature>/spec.md` | PM/BA | Define what to build |
-| `docs/<feature>/rules.md` | PM/BA | Define business logic |
+| `docs/<feature>/spec.md` | PM/BA | Define what to build (via /write-spec) |
+| `docs/<feature>/examples/` | PM/BA | Sample input/output data |
 | `.claude/commands/*.md` | DevOps | Define Claude commands |
 | `.github/workflows/*.yml` | DevOps | Automation workflows |

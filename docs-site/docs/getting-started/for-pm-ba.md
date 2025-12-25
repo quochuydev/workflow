@@ -5,79 +5,78 @@ title: For PM/BA
 
 # Getting Started for PM/BA
 
-Write specs that developers and Claude can understand.
+Create developer-ready specifications using Claude Code.
 
-## Your Role
+## Quick Start
 
-1. Create feature documentation in `docs/<feature-name>/`
-2. Push to GitHub
-3. Developers get notified and use your docs as source of truth
+```bash
+# In Claude Code, run:
+/write-spec <feature-name>
+```
 
-## Folder Structure
+Claude will guide you through a conversation to create a complete spec.
 
-Each feature needs its own folder:
+## The Flow
+
+1. **You run** `/write-spec user-export`
+2. **Claude asks** questions one at a time
+3. **Claude generates** `docs/user-export/spec.md`
+4. **Developer runs** `/develop-feature user-export`
+5. **Claude builds** the feature from your spec
+
+## Spec Format
+
+The generated spec includes:
+
+```markdown
+# Spec: feature-name
+
+## Overview
+One sentence: what this does.
+
+## Requirements
+- [ ] REQ-1: Description
+- [ ] REQ-2: Description
+
+## Data Model
+(Mermaid ERD diagram)
+
+## API
+(Endpoints, request/response)
+
+## Error Codes
+(Error format and codes)
+
+## Test Cases
+(Input/expected output table)
+
+## Out of Scope
+(What we're NOT building)
+```
+
+## Example
+
+See a complete example: [example-feature/spec.md](https://github.com/quochuydev/workflow/blob/main/examples/docs/example-feature/spec.md)
+
+## Manual Creation
+
+You can also create specs manually:
 
 ```
 docs/
-└── user-auth/              # Feature folder (lowercase, hyphenated)
-    ├── spec.md             # Required: What to build
-    ├── rules.md            # Optional: Business logic
-    └── examples/           # Optional: Sample data
-        ├── valid-login.json
-        └── invalid-login.json
+└── your-feature/
+    ├── spec.md              # Required
+    └── examples/            # Optional
+        ├── valid-input.json
+        └── invalid-input.json
 ```
 
-## Writing spec.md
+## Tips
 
-Every feature **must** have a `spec.md` with:
-
-```markdown
-# Feature Name
-
-## Overview
-One sentence describing what this feature does.
-
-## User Story
-As a [user type], I want [goal], so that [benefit].
-
-## Acceptance Criteria
-- [ ] User can do X
-- [ ] System validates Y
-- [ ] Error shown when Z
-
-## API (if applicable)
-### POST /api/endpoint
-Request: { ... }
-Response: { ... }
-```
-
-## Writing rules.md
-
-For complex business logic:
-
-```markdown
-# Feature Name - Business Rules
-
-## Validation Rules
-1. Field X must be Y
-2. Maximum Z allowed
-
-## Business Rules
-1. When A happens, do B
-2. Calculate C as D * E
-
-## Edge Cases
-| Scenario | Expected Behavior |
-|----------|-------------------|
-| Empty input | Show error "Required" |
-```
-
-## Adding Examples
-
-Put JSON examples in `examples/` folder:
-
-- `valid-purchase.json` - Example of valid data
-- `invalid-negative-amount.json` - Example of invalid data
+- **Be specific** - Vague specs lead to wrong implementations
+- **Use `/write-spec`** - Let Claude guide you through all required sections
+- **Include examples** - JSON examples prevent misunderstandings
+- **Update docs first** - If requirements change, update spec before telling developers
 
 ## What Happens Next
 
@@ -85,11 +84,3 @@ Put JSON examples in `examples/` folder:
 2. GitHub Action notifies developers
 3. Developer runs `/develop-feature your-feature`
 4. Claude reads your docs and builds the feature
-5. Tests run automatically via n8n
-
-## Tips
-
-- **Be specific** - Vague specs lead to wrong implementations
-- **Use checklists** - Acceptance criteria as checkboxes are easy to verify
-- **Include examples** - JSON examples prevent misunderstandings
-- **Update docs first** - If requirements change, update spec before telling developers

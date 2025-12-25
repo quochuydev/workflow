@@ -1,50 +1,56 @@
-# Documentation Guide
+# AI Team Workflow
 
-This folder contains feature documentation that serves as the source of truth for development.
+A documentation-driven development workflow connecting PM/BA, Developers, and QC through Claude Code.
+
+## Quick Start
+
+```bash
+npx create-ai-team
+```
+
+## How It Works
+
+```
+PM/BA: /write-spec user-export     → creates docs/user-export/spec.md
+Dev:   /develop-feature user-export → builds from spec
+```
+
+## Commands
+
+| Command | For | Purpose |
+|---------|-----|---------|
+| `/write-spec` | PM/BA | Create spec through conversation |
+| `/develop-feature` | Dev | Build feature from spec |
+| `/fix-issue` | Dev | Fix bugs with doc context |
+| `/trace-flow` | Dev | Trace code flow |
 
 ## Folder Structure
 
-Each feature gets its own folder:
-
 ```
-docs/
-└── <feature-name>/
-    ├── spec.md          # Required: What to build
-    ├── rules.md         # Optional: Business logic rules
-    ├── examples/        # Optional: Example data
-    │   ├── input-1.json
-    │   └── output-1.json
-    └── test-cases/      # Optional: Test scenarios
-        └── cases.md
+your-project/
+├── .claude/commands/      # Claude Code commands
+├── docs/
+│   └── <feature>/
+│       ├── spec.md        # Required: What to build
+│       └── examples/      # Optional: Sample data
+└── .github/workflows/     # Optional: GitHub Actions
 ```
 
-## Writing spec.md
+## Documentation
 
-Every feature needs a `spec.md` with:
+- [Full Documentation](https://quochuydev.github.io/workflow/)
+- [Installation Guide](https://quochuydev.github.io/workflow/getting-started/installation)
+- [Example Project](./examples)
 
-1. **Overview** - What this feature does (1-2 sentences)
-2. **User Story** - As a [user], I want [goal], so that [benefit]
-3. **Acceptance Criteria** - Checklist of requirements
-4. **UI/UX** - Screens, flows, or interactions (if applicable)
-5. **API** - Endpoints, request/response (if applicable)
+## Spec Format
 
-## Writing rules.md
+See [examples/docs/example-feature/spec.md](./examples/docs/example-feature/spec.md) for the full template.
 
-For features with complex business logic, add `rules.md`:
-
-1. **Validation Rules** - Input validation requirements
-2. **Business Rules** - Logic, calculations, conditions
-3. **Edge Cases** - How to handle unusual scenarios
-4. **Error Handling** - Error messages and recovery
-
-## Adding Examples
-
-Put example data in `examples/` folder:
-- Use JSON format for machine-readability
-- Name files descriptively: `valid-purchase.json`, `invalid-negative-amount.json`
-- Include both valid and invalid examples
-
-## Naming Conventions
-
-- Feature folder names: lowercase, hyphenated (e.g., `user-auth`, `payment-flow`)
-- Use the folder name when referencing features in commands
+Key sections:
+- Overview
+- Requirements (checklist)
+- Data Model (Mermaid ERD)
+- API endpoints
+- Error format and codes
+- Test cases
+- Out of scope

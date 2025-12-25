@@ -5,7 +5,7 @@ title: For Developers
 
 # Getting Started for Developers
 
-Use Claude Code commands to build features from documentation.
+Build features from specs using Claude Code commands.
 
 ## Prerequisites
 
@@ -27,7 +27,6 @@ When PM/BA creates or updates `docs/<feature>/spec.md`, you'll get a notificatio
 
 This command:
 - Reads `docs/<feature>/spec.md` (required)
-- Reads `docs/<feature>/rules.md` (if exists)
 - Reads example data in `docs/<feature>/examples/`
 - Creates an implementation plan
 - Builds the feature step-by-step
@@ -56,9 +55,13 @@ This traces the code path and shows related business rules from docs.
 
 | Command | Purpose |
 |---------|---------|
-| `/develop-feature <name>` | Build feature from docs |
+| `/develop-feature <name>` | Build feature from spec |
 | `/fix-issue <desc>` | Fix bug with doc context |
 | `/trace-flow <target>` | Trace code with business rules |
+
+## Example
+
+See a working example: [github.com/quochuydev/workflow/tree/main/examples](https://github.com/quochuydev/workflow/tree/main/examples)
 
 ## Tips
 

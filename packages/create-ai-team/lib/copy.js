@@ -7,6 +7,7 @@ const TEMPLATES_DIR = path.join(__dirname, '..', 'templates');
 
 const FILE_MAPPINGS = {
   claudeCommands: [
+    { from: '.claude/commands/write-spec.md', to: '.claude/commands/write-spec.md' },
     { from: '.claude/commands/develop-feature.md', to: '.claude/commands/develop-feature.md' },
     { from: '.claude/commands/fix-issue.md', to: '.claude/commands/fix-issue.md' },
     { from: '.claude/commands/trace-flow.md', to: '.claude/commands/trace-flow.md' },
@@ -17,7 +18,6 @@ const FILE_MAPPINGS = {
   ],
   exampleDocs: [
     { from: 'docs/example-feature/spec.md', to: 'docs/example-feature/spec.md' },
-    { from: 'docs/example-feature/rules.md', to: 'docs/example-feature/rules.md' },
     { from: 'docs/example-feature/examples/valid-input.json', to: 'docs/example-feature/examples/valid-input.json' },
     { from: 'docs/example-feature/examples/invalid-input.json', to: 'docs/example-feature/examples/invalid-input.json' },
   ],

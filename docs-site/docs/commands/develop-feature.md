@@ -31,9 +31,8 @@ You are developing a feature based on documentation in `./docs/$ARGUMENTS.featur
 Read these files in order (skip if not found):
 
 1. `./docs/$ARGUMENTS.feature/spec.md` - **Required**: What to build
-2. `./docs/$ARGUMENTS.feature/rules.md` - Business logic rules
-3. All files in `./docs/$ARGUMENTS.feature/examples/` - Example data
-4. `./docs/$ARGUMENTS.feature/test-cases/cases.md` - Test scenarios
+2. All files in `./docs/$ARGUMENTS.feature/examples/` - Example data
+3. `./docs/$ARGUMENTS.feature/test-cases/cases.md` - Test scenarios
 
 If `spec.md` does not exist, STOP and tell the user:
 > "No spec.md found for feature '$ARGUMENTS.feature'. Please create ./docs/$ARGUMENTS.feature/spec.md first."
@@ -73,14 +72,13 @@ Based on size:
 For each task:
 1. Implement the code
 2. Validate against spec.md requirements
-3. Validate against rules.md (if exists)
-4. Check example data handling (if exists)
+3. Check example data handling (if exists)
 
 ## Step 6: Final Checklist
 
 Before marking complete:
 - [ ] All acceptance criteria from spec.md met
-- [ ] All business rules from rules.md implemented
+- [ ] All business rules from spec.md implemented
 - [ ] Example inputs produce expected outputs
 - [ ] No hardcoded values that should come from docs
 - [ ] Code matches documented behavior exactly

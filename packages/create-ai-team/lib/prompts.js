@@ -16,7 +16,7 @@ export async function runPrompts(isUpdate) {
         choices: [
           {
             title: 'Claude Code commands',
-            description: '/develop-feature, /fix-issue, /trace-flow',
+            description: '/write-spec, /develop-feature, /fix-issue, /trace-flow',
             value: 'claude-commands',
             selected: true,
           },

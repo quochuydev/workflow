@@ -8,26 +8,46 @@ title: Team Workflow
 
 A documentation-driven development workflow connecting **PM/BA**, **Developers**, and **QC** through GitHub and Claude Code.
 
+## Quick Start
+
+```bash
+npx create-ai-team
+```
+
+See [Installation Guide](/getting-started/installation) for details.
+
 ## How It Works
 
 ```mermaid
 flowchart LR
-    PM[PM/BA] -->|writes| Docs[docs/feature/spec.md]
+    PM[PM/BA] -->|/write-spec| Docs[docs/feature/spec.md]
     Docs -->|triggers| GHA[GitHub Action]
     GHA -->|notifies| Dev[Developer]
-    Dev -->|uses| Claude[Claude Code]
+    Dev -->|/develop-feature| Claude[Claude Code]
     Claude -->|reads| Docs
     Claude -->|builds| Code[Feature Code]
-    Code -->|triggers| N8N[n8n Tests]
-    N8N -->|reports to| QC[QC Team]
 ```
 
 ## Quick Links
 
 | Role | Start Here |
 |------|------------|
-| **Developer** | [Getting Started for Developers](/getting-started/for-developers) |
+| **New Project** | [Installation](/getting-started/installation) |
 | **PM/BA** | [Getting Started for PM/BA](/getting-started/for-pm-ba) |
+| **Developer** | [Getting Started for Developers](/getting-started/for-developers) |
+
+## Commands
+
+| Command | For | Purpose |
+|---------|-----|---------|
+| `/write-spec` | PM/BA | Create spec through conversation |
+| `/develop-feature` | Dev | Build from spec |
+| `/fix-issue` | Dev | Fix bugs with context |
+| `/trace-flow` | Dev | Trace code flow |
+
+## Example Repository
+
+See a working example: [github.com/quochuydev/workflow/tree/main/examples](https://github.com/quochuydev/workflow/tree/main/examples)
 
 ## Core Concepts
 
