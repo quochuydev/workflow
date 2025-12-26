@@ -10,9 +10,14 @@ npx create-ai-team
 
 ## How It Works
 
-```
-PM/BA: /write-spec user-export     → creates docs/user-export/spec.md
-Dev:   /develop-feature user-export → builds from spec
+```mermaid
+flowchart LR
+    PM[PM/BA] -->|/write-spec| Docs[docs/feature/spec.md]
+    Docs -->|triggers| GHA[GitHub Action]
+    GHA -->|notifies| Dev[Developer]
+    Dev -->|/develop-feature| Claude[Claude Code]
+    Claude -->|reads| Docs
+    Claude -->|builds| Code[Feature Code]
 ```
 
 ## Commands
